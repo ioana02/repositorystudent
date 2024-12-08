@@ -1,0 +1,85 @@
+import unittest
+from Validator import StudentValidator
+from Domain import Student
+
+class TestStudentValidator(unittest.TestCase):
+
+    def setUp(self):
+        """Inițializează validatorul înainte de fiecare test"""
+        self.validator = StudentValidator()
+
+    def test_validare_student_valid(self):
+        """Testează validarea unui student valid"""
+        student = Student(1, "Ion", "Vasile", 101)
+        self.validator.valideaza(student)  # Nu trebuie să ridice erori
+
+    def test_validare_student_invalid_nume(self):
+        """Testează validarea unui student cu nume invalid"""
+        student = Student(1, "ion", "Vasile", 101)
+        with self.assertRaises(ValueError) as context:
+            self.validator.valideaza(student)
+        self.assertIn("Numele trebuie să înceapă cu literă mare.", str(context.exception))
+
+    def test_validare_student_invalid_grupa(self):
+        """Testează validarea unui student cu grupă invalidă"""
+        student = Student(1, "Ion", "Vasile", 99)
+        with self.assertRaises(ValueError) as context:
+            self.validator.valideaza(student)
+        self.assertIn("Grupa trebuie să aibă cel puțin 3 cifre.", str(context.exception))
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+
+
+import unittest
+from Service import StudentService
+from Repository import StudentRepository
+from Validator import StudentValidator
+from Domain import Student
+
+class TestStudentService(unittest.TestCase):
+
+    def setUp(self):
+        """Inițializează serviciul înainte de fiecare test"""
+        self.validator = StudentValidator()
+        self.repository = StudentRepository()
+        self.service = StudentService(self.repository, self.validator)
+
+    def test_adauga_student_valid(self):
+        """Testează adăugarea unui student valid"""
+        self.service.adauga(1, "Ion", "Vasile", 101)
+        studenti = self.service.get_all()
+        self.assertEqual(len(studenti), 1)
+        self.assertEqual(studenti[0].get_nume(), "Ion")
+
+    def test_adauga_student_invalid(self):
+        """Testează adăugarea unui student invalid și verifică eroarea"""
+        with self.assertRaises(ValueError) as context:
+            self.service.adauga(1, "ion", "vasile", 99)  # Nume și grup invalid
+        self.assertIn("Numele trebuie să înceapă cu literă mare.", str(context.exception))
+        self.assertIn("Grupa trebuie să aibă cel puțin 3 cifre.", str(context.exception))
+
+    def test_sterge_student(self):
+        """Testează ștergerea unui student existent"""
+        self.service.adauga(1, "Ion", "Vasile", 101)
+        self.service.sterge(1)
+        studenti = self.service.get_all()
+        self.assertEqual(len(studenti), 0)
+
+    def test_modifica_student(self):
+        """Testează modificarea unui student existent"""
+        self.service.adauga(1, "Ion", "Vasile", 101)
+        self.service.modifica(1, "Ioan", "Vasilescu", 102)
+        studenti = self.service.get_all()
+        self.assertEqual(studenti[0].get_nume(), "Ioan")
+        self.assertEqual(studenti[0].get_grupa(), 102)
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+
+
+python -m unittest discover tests/

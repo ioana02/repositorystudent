@@ -1,0 +1,7 @@
+1,         Pop ,         Maria, 234
+2,         Ioan ,         Mihai, 254
+3,        Marius,        Pop, 265
+4,    Mihai,    Pop, 123
+8,   Mihai,   Anca, 156
+7,  Mihai,  Anca, 564
+9, Anca, Mihai, 455
